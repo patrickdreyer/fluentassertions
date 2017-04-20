@@ -222,5 +222,82 @@ namespace FluentAssertions.Xml
 
             return new AndWhichConstraint<XmlElementAssertions, XmlElement>(this, element);
         }
+
+        /// <summary>
+        /// Asserts that the current <see cref="XmlElement"/> has no direct child element with the specified
+        /// <paramref name="unexpectedName"/> name.
+        /// </summary>
+        /// <param name="unexpectedName">The name of the unexpected child element</param>
+        public AndWhichConstraint<XmlElementAssertions, XmlElement> NotHaveElement(string unexpectedName)
+        {
+            return NotHaveElement(unexpectedName, string.Empty);
+        }
+
+        /// <summary>
+        /// Asserts that the current <see cref="XmlElement"/> has no direct child element with the specified
+        /// <paramref name="unexpectedName"/> name.
+        /// </summary>
+        /// <param name="unexpectedName">The name of the unexpected child element</param>
+        /// <param name="because">
+        /// A formatted phrase as is supported by <see cref="string.Format(string,object[])" /> explaining why the assertion 
+        /// is needed. If the phrase does not start with the word <i>because</i>, it is prepended automatically.
+        /// </param>
+        /// <param name="becauseArgs">
+        /// Zero or more objects to format using the placeholders in <see cref="because" />.
+        /// </param>
+        public AndWhichConstraint<XmlElementAssertions, XmlElement> NotHaveElement(
+            string unexpectedName,
+            string because,
+            params object[] becauseArgs)
+        {
+            return NotHaveElementWithNamespace(unexpectedName, string.Empty, because, becauseArgs);
+        }
+
+        /// <summary>
+        /// Asserts that the current <see cref="XmlElement"/> has no direct child element with the specified
+        /// <paramref name="unexpectedName"/> name and <paramref name="unexpectedNamespace" /> namespace.
+        /// </summary>
+        /// <param name="unexpectedName">The name of the unexpected child element</param>
+        /// <param name="unexpectedNamespace">The namespace of the unexpected child element</param>
+        public AndWhichConstraint<XmlElementAssertions, XmlElement> NotHaveElementWithNamespace(
+            string unexpectedName, string unexpectedNamespace)
+        {
+            return NotHaveElementWithNamespace(unexpectedName, unexpectedNamespace, string.Empty);
+        }
+
+        /// <summary>
+        /// Asserts that the current <see cref="XmlElement"/> has no direct child element with the specified
+        /// <paramref name="unexpectedName"/> name and <paramref name="unexpectedNamespace" /> namespace.
+        /// </summary>
+        /// <param name="unexpectedName">The name of the unexpected child element</param>
+        /// <param name="unexpectedNamespace">The namespace of the unexpected child element</param>
+        /// <param name="because">
+        /// A formatted phrase as is supported by <see cref="string.Format(string,object[])" /> explaining why the assertion 
+        /// is needed. If the phrase does not start with the word <i>because</i>, it is prepended automatically.
+        /// </param>
+        /// <param name="becauseArgs">
+        /// Zero or more objects to format using the placeholders in <see cref="because" />.
+        /// </param>
+        public AndWhichConstraint<XmlElementAssertions, XmlElement> NotHaveElementWithNamespace(
+            string unexpectedName,
+            string unexpectedNamespace,
+            string because,
+            params object[] becauseArgs)
+        {
+            XmlElement element = Subject[unexpectedName, unexpectedNamespace];
+
+            string unexpectedFormattedName =
+                (string.IsNullOrEmpty(unexpectedNamespace) ? "" : "{" + unexpectedNamespace + "}")
+                + unexpectedName;
+
+            Execute.Assertion
+                .ForCondition(element == null)
+                .BecauseOf(because, becauseArgs)
+                .FailWith("Expected XML element {0} to have no child element \"" +
+                    unexpectedFormattedName.ToString().Escape(escapePlaceholders: true) + "\"{reason}" +
+                        ", but such child element was found.", Subject);
+
+            return new AndWhichConstraint<XmlElementAssertions, XmlElement>(this, element);
+        }
     }
 }
